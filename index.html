@@ -1,0 +1,82 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="./style.css"> 
+    </head>
+    <body>
+        <div id="app"></div>
+    </body>
+    <script src="./edit-templates.js"></script>
+    <script src="./controller.js"></script>
+    <script>
+const data = {
+    'url-templates': [
+        {
+            'title': 'Canvas Course',
+            'url': [
+                'https://',
+                '{Institution}',
+                '/courses/',
+                '{Course ID}'
+            ],
+            'id': 1,
+            'fields': [
+                {
+                    'label': 'Institution',
+                    'type': 'select',
+                    'options': [
+                        {'label': 'Consumer', 'value': 'learning.flatironschool.com'},
+                        {'label': 'Enterprise', 'value': 'my.learn.co'}
+                    ],
+                    'default': 'learning.flatironschool.com',
+                    'id': 1
+                },
+                {
+                    'label': 'Course ID',
+                    'type': 'text',
+                    'default': null,
+                    'id': 3
+                }
+            ]
+        },
+    ]
+}
+data['url-templates'].forEach( (item) => {
+
+
+addItem(item)
+
+})
+
+
+newTemplateController(app)
+
+
+
+
+    </script>
+    <script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+    content.style.display = "none";
+    } else {
+    content.style.display = "block";
+    }
+    if (this.classList.contains('url-part')) {
+        const templateForm = document.getElementById('new-template')
+        const addPartButton = urlPartType(elementCount + 1)
+        const partDiv = document.createElement('div')
+        partDiv.id = `new-element-container-${elementCount}`
+        partDiv.innerHTML = addPartButton
+        templateForm.appendChild(partDiv)
+    }
+    });
+}
+    </script>
+
+</html>

@@ -1,0 +1,284 @@
+<head>
+    <style>
+        /* Style the button that is used to open and close the collapsible content */
+.collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+  }
+  
+  /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+  .active, .collapsible:hover {
+    background-color: #ccc;
+  }
+  
+  /* Style the collapsible content. Note: hidden by default */
+  .content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #f1f1f1;
+  }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+</body>
+<script>
+const app = document.getElementById('app')
+const templateDiv = document.createElement('div')
+
+const data = {
+    'url-templates': [
+        {
+            'title': 'Canvas Course',
+            'url': [
+                'https://',
+                '{Institution}',
+                '/courses/',
+                '{Course ID}'
+            ],
+            'id': 1,
+            'fields': [
+                {
+                    'label': 'Institution',
+                    'type': 'select',
+                    'options': [
+                        {'label': 'Consumer', 'value': 'learning.flatironschool.com'},
+                        {'label': 'Enterprise', 'value': 'my.learn.co'}
+                    ],
+                    'default': 'learning.flatironschool.com',
+                    'id': 1
+                },
+                {
+                    'label': 'Course ID',
+                    'type': 'text',
+                    'default': null,
+                    'id': 3
+                }
+            ]
+        },
+    ]
+}
+
+const cache = {}
+
+const inputHandler = function(control, itemID, fieldID) {
+
+        const value = control.value
+        const element = document.getElementById(`item-${itemID}`)
+        cache[itemID][fieldID] = value
+        const newURL = cache[itemID].join('')
+        element.innerHTML = newURL
+        element.href = newURL
+
+}
+
+const addItem = function(item) {
+    cache[item.id] = item.url
+        const button = `<button type="button" class="collapsible">${item.title}</button>`
+        
+        var form = `
+            <form>
+                <br>
+        `
+        const fields = item.fields
+        fields.forEach((field) => {
+            if (field.default != null) {
+                cache[item.id][field.id] = field.default
+            }
+            const label = field.label
+            const type = field.type
+            const id = field.id
+            
+            if (type == "text") {
+                form += `
+                    <label for="${id}">${label}</label>
+                    <input type="text" id="${id}" name="${label}" oninput="inputHandler(this, ${item.id}, ${id})"><br><br>
+                    `
+            }
+            if (type == 'select') {
+
+
+                form +=`
+                    <label for="${id}">${label}</label>
+                    <select name="${label}" id="${id}" onchange="inputHandler(this, ${item.id}, ${id})">
+                `
+
+                const options = field.options
+                options.forEach((option) => {
+                    form +=`
+                    <option value="${option.value}">${option.label}</option>
+                    `
+                })
+
+
+                form += '</select><br><br>'
+            }
+
+            
+        })
+        
+        form += `</form><a target="_blank" id="item-${item.id}" href="${cache[item.id].join('')}">${cache[item.id].join('')}<br><br></div>`
+        
+        
+        const content = `<div class="content">${form}</div>`
+        templateDiv.innerHTML += `${button}${content}`
+        app.appendChild(templateDiv)
+
+}
+
+const addElementSetter = function(control) {
+    const setterID = `new-element-setter-type-${elementCount}`
+    if (document.getElementById(setterID) != null) {
+        document.getElementById(setterID).remove()
+    }
+    const elementForm = document.getElementById(`new-element-${elementCount}`)
+    const setter = document.createElement('div')
+    setter.id = setterID
+    if (control.value == 'static') {
+        const innerHTML = `
+        <label for="setter-${elementCount}">Enter the static url part</label>
+        <input type="text" id="setter-${elementCount}">
+        `
+        setter.innerHTML = innerHTML
+    } else {
+
+        setter.innerHTML = templateType(elementCount)
+
+    }
+
+    elementForm.appendChild(setter)
+
+}
+
+const urlPartType = function(partNumber) {
+            typeSelector = `
+            <div>
+            <p>URL Element ${partNumber}:</p>
+            <input type="radio" id="static-${partNumber}" name="type" value="static" onclick="addElementSetter(this)">
+            <label for="static-${partNumber}">Static Part</label>
+            <input type="radio" id="template-${partNumber}" name="type" value="template" onclick="addElementSetter(this)">
+            <label for="template-${partNumber}">Template Part</label><br>
+            </div>
+            `
+
+            return typeSelector
+}
+
+const templateType = function(partNumber) {
+
+    typeSelector = `
+            <div>
+            <p>Select an input type:</p>
+            <input type="radio" id="text-${partNumber}" name="type" value="text" onclick="setterInput(this)">
+            <label for="text-${partNumber}">Text Input</label>
+            <input type="radio" id="dropdown-${partNumber}" name="type" value="dropdown" onclick="setterInput(this)">
+            <label for="dropdown-${partNumber}">Dropdown Input</label><br>
+            </div><br>
+            `
+
+            return typeSelector
+}
+
+
+const setterInput = function(control) {
+    const inputID = `new-element-setter-input-${elementCount}`
+    if (document.getElementById(inputID) != null) {
+        document.getElementById(inputID).remove()
+    }
+    const elementForm = document.getElementById(`new-element-${elementCount}`)
+    const input = document.createElement('div')
+    input.id = inputID
+    if (control.value == 'text') {
+        innerHTML = `
+
+        <label for="new-element-${elementCount}-label">Template Field Name:</label>
+        <input type="text" id="new-element-${elementCount}-label"><br><br>
+        <label for="new-element-${elementCount}-text-default">[Optional] Set a default value</label>
+        <input type="text" id="new-element-${elementCount}-text-default"><br><br>
+        <button>Create Template</button>
+
+        `
+
+        input.innerHTML = innerHTML
+    } else {
+        innerHTML = `
+
+        <label for="new-element-${elementCount}-label">Template Field Name:</label>
+        <input type="text" id="new-element-${elementCount}-label"><br><br>
+        <label for="new-element-${elementCount}-dropdown-options">Enter options seperated by a comma</label>
+        <input type="text" id="new-element-${elementCount}-dropdown-options"><br><br>
+        <button>Create Template</button>
+
+        `
+
+        input.innerHTML = innerHTML
+
+    }
+
+    elementForm.appendChild(input)
+
+    
+}
+
+
+
+data['url-templates'].forEach( (item) => {
+
+
+    addItem(item)
+
+    })
+
+var elementCount = 1
+const newElementTemplate = function() {
+   return  {
+            'title': null,
+            'url': [],
+            'id': null,
+            'fields': []
+        }
+}
+const newElement = newElementTemplate()
+const button = `<button type="button" class="collapsible">+ Add New Template</button>`
+const content = `<div class="content">
+
+    <form id="new-template">
+        <br>
+        <label for="new-title">Template title:</label>
+        <input type="text" id="new-title" name="new-title"><br>
+        <div id='new-element-${elementCount}'>
+        ${urlPartType(elementCount)}
+        </div>
+    </form>
+
+    <a id="new-url-display"></a>
+    
+    </div>`
+
+templateDiv.innerHTML += `${button}${content}`
+
+
+
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+</script>
